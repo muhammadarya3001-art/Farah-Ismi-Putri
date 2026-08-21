@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farah Konsultasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF5EE;
+    --bg-alt:#F1E4D3;
+    --surface:#FFFFFF;
+    --line:#E7D9C6;
+    --ink:#2B211B;
+    --ink-muted:#8A7562;
+    --iron:#AD4E2C;
+    --iron-dark:#8A3C21;
+    --iron-tint:#F3DCCB;
+    --vitality:#4B7A57;
+    --vitality-tint:#E1EEE1;
+    --caution:#C6892E;
+    --caution-tint:#F6E7CC;
+    --alert:#8E2A24;
+    --alert-tint:#F1D9D2;
+    --radius:18px;
+    --shadow: 0 12px 30px -14px rgba(43,33,27,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(173,78,44,0.08) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events:none;
+    z-index:0;
+  }
+  h1,h2,h3,.display{ font-family:'Fraunces',serif; letter-spacing:-0.01em; }
+  .app{ position:relative; z-index:1; max-width:640px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; width:100%; }
+
+  /* top bar */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:22px 24px 10px; }
+  .brand{ display:flex; align-items:center; gap:10px; cursor:pointer; }
+  .brand-mark{ width:34px; height:34px; flex:none; }
+  .brand-name{ font-family:'Fraunces',serif; font-weight:700; font-size:1.15rem; color:var(--iron-dark); }
+  .brand-name span{ color:var(--vitality); }
+  .step-pill{ font-size:0.72rem; font-weight:600; color:var(--ink-muted); background:var(--surface); border:1px solid var(--line); padding:5px 12px; border-radius:100px; letter-spacing:.02em; }
+
+  .progress-track{ height:4px; background:var(--bg-alt); margin:0 24px; border-radius:4px; overflow:hidden; }
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--iron),var(--caution)); width:0%; transition:width .4s ease; }
+
+  main{ flex:1; padding:20px 24px 100px; }
+  .screen{ display:none; animation:fadeUp .45s ease; }
+  .screen.active{ display:block; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- Beranda ---- */
+  .hero{ text-align:center; padding:26px 6px 6px; }
+  .hero-eyebrow{ font-size:.78rem; font-weight:600; text-transform:uppercase; letter-spacing:.14em; color:var(--vitality); margin-bottom:10px;}
+  .hero h1{ font-size:2.35rem; line-height:1.08; margin:0 0 12px; color:var(--ink); }
+  .hero h1 em{ font-style:normal; color:var(--iron); }
+  .hero p{ color:var(--ink-muted); font-size:1rem; max-width:420px; margin:0 auto 28px; }
+
+  .gauge-hero{ display:flex; justify-content:center; margin:6px 0 30px; }
+  .drop-wrap{ position:relative; width:150px; height:190px; }
+  .drop-wrap svg{ width:100%; height:100%; }
+
+  .cta-row{ display:flex; flex-direction:column; gap:12px; align-items:center; }
+  .btn{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:0.98rem; cursor:pointer;
+    border-radius:100px; border:none; padding:15px 30px; transition:transform .15s ease, box-shadow .15s ease;
+    display:inline-flex; align-items:center; gap:8px; justify-content:center;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--iron); color:#fff; box-shadow:0 10px 24px -10px rgba(173,78,44,.6); width:100%; max-width:320px;}
+  .btn-primary:hover{ background:var(--iron-dark); }
+  .btn-ghost{ background:transparent; color:var(--iron-dark); border:1.5px solid var(--line); width:100%; max-width:320px;}
+  .btn-ghost:hover{ border-color:var(--iron); }
+  .btn-small{ padding:10px 18px; font-size:.85rem; }
+
+  .home-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:34px; }
+  .stat-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 10px; text-align:center; }
+  .stat-card .num{ font-family:'Fraunces',serif; font-weight:700; font-size:1.3rem; color:var(--iron-dark); }
+  .stat-card .lbl{ font-size:.68rem; color:var(--ink-muted); margin-top:2px; }
+
+  /* ---- cards / forms ---- */
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
+  .section-label{ font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--iron); margin-bottom:6px; }
+  .q-title{ font-family:'Fraunces',serif; font-size:1.35rem; font-weight:600; margin:0 0 4px; }
+  .q-sub{ color:var(--ink-muted); font-size:.9rem; margin:0 0 20px; }
+
+  .field{ margin-bottom:20px; }
+  .field label{ display:block; font-size:.85rem; font-weight:600; margin-bottom:8px; color:var(--ink); }
+  .field input[type=number], .field input[type=text], .field select{
+    width:100%; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--bg);
+    font-family:'Inter'; font-size:.95rem; color:var(--ink);
+  }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--iron); }
+
+  .choice-grid{ display:flex; flex-direction:column; gap:9px; }
+  .choice-grid.grid2{ display:grid; grid-template-columns:1fr 1fr; }
+  .choice{
+    display:flex; align-items:center; gap:10px; padding:13px 15px; border-radius:13px; border:1.5px solid var(--line);
+    cursor:pointer; font-size:.92rem; font-weight:500; background:var(--bg); transition:all .15s ease;
+  }
+  .choice:hover{ border-color:var(--iron); }
+  .choice input{ accent-color:var(--iron); width:16px; height:16px; flex:none; }
+  .choice.selected{ border-color:var(--iron); background:var(--iron-tint); font-weight:600; }
+  .choice .tag{ margin-left:auto; font-size:.7rem; color:var(--ink-muted); }
+
+  .subblock{ margin-top:6px; padding-top:16px; border-top:1px dashed var(--line); }
+  .subblock-title{ font-size:.8rem; font-weight:700; color:var(--ink-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:.06em;}
+
+  .nav-row{ display:flex; gap:10px; margin-top:26px; }
+  .nav-row .btn{ flex:1; max-width:none; }
+
+  .hint{ font-size:.78rem; color:var(--ink-muted); background:var(--bg-alt); padding:10px 12px; border-radius:10px; margin-top:14px; }
+
+  /* ---- gejala grid ---- */
+  .gejala-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .gejala-item{ display:flex; align-items:center; gap:9px; padding:13px; border-radius:13px; border:1.5px solid var(--line); background:var(--bg); cursor:pointer; font-size:.86rem; }
+  .gejala-item.selected{ border-color:var(--vitality); background:var(--vitality-tint); }
+  .gejala-item input{ accent-color:var(--vitality); }
+  .score-badge{ margin-top:16px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-alt); border-radius:12px; padding:10px 15px; font-size:.85rem; font-weight:600; color:var(--iron-dark); }
+
+  /* ---- hasil ---- */
+  .result-head{ text-align:center; padding:10px 0 20px; }
+  .result-badge{ display:inline-flex; align-items:center; gap:8px; padding:8px 18px; border-radius:100px; font-weight:700; font-size:.9rem; margin-bottom:18px; }
+  .arc-wrap{ display:flex; justify-content:center; margin-bottom:6px; }
+  .score-num{ font-family:'Fraunces',serif; font-weight:900; font-size:3rem; text-align:center; margin:0; }
+  .score-cap{ text-align:center; color:var(--ink-muted); font-size:.85rem; margin-top:-6px; }
+
+  .result-section{ margin-top:24px; }
+  .result-section h3{ font-size:1rem; margin:0 0 10px; display:flex; align-items:center; gap:8px;}
+  .pill-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .pill-list li{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:11px 14px; font-size:.87rem; display:flex; gap:9px; }
+  .pill-list li::before{ content:"—"; color:var(--iron); flex:none; }
+
+  .breakdown{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:18px; }
+  .breakdown .bd{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 8px; text-align:center; }
+  .breakdown .bd .v{ font-family:'Fraunces',serif; font-weight:700; font-size:1.2rem; }
+  .breakdown .bd .k{ font-size:.66rem; color:var(--ink-muted); margin-top:2px; }
+
+  .disclaimer{ margin-top:22px; font-size:.78rem; color:var(--ink-muted); background:var(--bg-alt); border-radius:12px; padding:13px 15px; }
+
+  /* ---- edukasi ---- */
+  .acc-item{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--surface); }
+  .acc-head{ padding:16px 18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:600; font-size:.95rem; }
+  .acc-head .num{ color:var(--iron); font-family:'Fraunces',serif; margin-right:10px; font-weight:700; }
+  .acc-icon{ transition:transform .25s ease; color:var(--ink-muted); }
+  .acc-item.open .acc-icon{ transform:rotate(45deg); }
+  .acc-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .acc-body-in{ padding:0 18px 18px; color:var(--ink-muted); font-size:.89rem; }
+
+  /* ---- rekomendasi ---- */
+  .food-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:22px;}
+  .food-chip{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:11px 13px; font-size:.85rem; display:flex; align-items:center; gap:8px; }
+  .menu-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:10px; }
+  .menu-card .m-title{ font-weight:700; font-size:.85rem; color:var(--iron-dark); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
+  .menu-card ul{ margin:0; padding-left:18px; font-size:.88rem; color:var(--ink); }
+
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:5;
+    background:rgba(250,245,238,0.92); backdrop-filter:blur(10px); border-top:1px solid var(--line);
+  }
+  .bottom-nav-in{ max-width:640px; margin:0 auto; display:flex; }
+  .bn-btn{ flex:1; padding:13px 6px 12px; text-align:center; background:none; border:none; cursor:pointer; font-family:'Inter'; }
+  .bn-btn .ic{ font-size:1.15rem; display:block; }
+  .bn-btn .lb{ font-size:.66rem; font-weight:600; color:var(--ink-muted); margin-top:3px; }
+  .bn-btn.active .lb, .bn-btn.active .ic{ color:var(--iron); }
+
+  @media (max-width:400px){
+    .hero h1{ font-size:1.9rem; }
+    .gejala-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ================= RESPONSIVE: TABLET & DESKTOP ================= */
+
+  /* Small tablets / large phones landscape */
+  @media (min-width:560px){
+    .gejala-grid{ grid-template-columns:repeat(3,1fr); }
+    .food-grid{ grid-template-columns:repeat(3,1fr); }
+    .home-stats{ gap:14px; }
+  }
+
+  /* Tablet and up: give the app breathing room, frame it like a card on a wider canvas */
+  @media (min-width:860px){
+    body{
+      display:flex;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(173,78,44,0.10), transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(75,122,87,0.10), transparent 45%),
+        var(--bg-alt);
+      padding:40px 24px;
+    }
+    body::before{ background-size:26px 26px; }
+    .app{
+      max-width:900px;
+      min-height:calc(100vh - 80px);
+      background:var(--bg);
+      border-radius:28px;
+      box-shadow:0 40px 80px -30px rgba(43,33,27,0.35), 0 0 0 1px var(--line);
+    }
+    .bottom-nav{
+      left:50%; right:auto; transform:translateX(-50%);
+      width:900px; max-width:calc(100% - 48px);
+      border-radius:0 0 24px 24px;
+      box-shadow:0 -10px 30px -18px rgba(43,33,27,0.3);
+    }
+    .bottom-nav-in{ max-width:900px; }
+    main{ padding:28px 56px 40px; }
+    .topbar{ padding:28px 56px 12px; }
+    .progress-track{ margin:0 56px; }
+
+    .hero{ padding:38px 20px 10px; }
+    .hero h1{ font-size:2.9rem; }
+    .hero p{ max-width:480px; font-size:1.05rem; }
+
+    .card{ padding:34px 40px; }
+    .q-title{ font-size:1.55rem; }
+
+    .choice-grid.grid2{ grid-template-columns:repeat(2,1fr); }
+    .gejala-grid{ grid-template-columns:repeat(4,1fr); }
+    .food-grid{ grid-template-columns:repeat(3,1fr); }
+    .home-stats{ grid-template-columns:repeat(3,1fr); max-width:460px; margin-left:auto; margin-right:auto; }
+
+    .breakdown{ max-width:520px; margin-left:auto; margin-right:auto; }
+    .result-head{ padding:20px 0 24px; }
+
+    /* two-column layout for menu cards on desktop */
+    #menuWrap{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    #menuWrap .menu-card{ margin-bottom:0; }
+
+    .nav-row .btn{ font-size:1rem; }
+  }
+
+  /* Large desktop: extra room, slightly wider frame */
+  @media (min-width:1200px){
+    .app{ max-width:1040px; }
+    .bottom-nav{ width:1040px; }
+    .bottom-nav-in{ max-width:1040px; }
+    main{ padding:32px 80px 44px; }
+    .topbar{ padding:32px 80px 12px; }
+    .progress-track{ margin:0 80px; }
+    .hero h1{ font-size:3.2rem; }
+    .card{ max-width:640px; margin:0 auto; padding:38px 44px; }
+    #screen-edukasi .q-title, #screen-rekomendasi .q-title,
+    #screen-edukasi .section-label, #screen-rekomendasi .section-label,
+    #screen-edukasi .q-sub, #screen-rekomendasi .q-sub{ max-width:640px; }
+    .result-head, .result-section, .breakdown, .disclaimer{ max-width:640px; margin-left:auto; margin-right:auto; }
+    #accWrap{ max-width:680px; margin:0 auto; }
+    #foodIron, #foodVitC{ max-width:680px; margin-left:auto; margin-right:auto; }
+    #menuWrap{ max-width:680px; margin-left:auto; margin-right:auto; }
+    .food-chip:hover, .menu-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+    .menu-card{ transition:transform .15s ease, box-shadow .15s ease; }
+    .food-chip{ transition:transform .15s ease, box-shadow .15s ease; }
+  }
+
+  /* Very small phones */
+  @media (max-width:340px){
+    .topbar{ padding:16px 16px 8px; }
+    main{ padding:14px 16px 96px; }
+    .card{ padding:16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand" onclick="goTo('beranda')">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+        <path d="M20 4C20 4 8 18.5 8 26.5C8 33.4 13.4 38 20 38C26.6 38 32 33.4 32 26.5C32 18.5 20 4 20 4Z" fill="#AD4E2C"/>
+        <path d="M20 4C20 4 8 18.5 8 26.5C8 33.4 13.4 38 20 38" fill="none" stroke="#8A3C21" stroke-opacity="0" />
+        <ellipse cx="15.5" cy="24" rx="3.4" ry="5.5" fill="#F3DCCB" opacity="0.8" transform="rotate(-18 15.5 24)"/>
+      </svg>
+      <div class="brand-name">Farah<span>Consultation</span></div>
+    </div>
+    <div class="step-pill" id="stepPill">Beranda</div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <main>
+
+    <!-- BERANDA -->
+    <section class="screen active" id="screen-beranda">
+      <div class="hero">
+        <div class="hero-eyebrow">Skrining mandiri &middot; 5 menit</div>
+        <h1>Kenali risiko <em>anemia</em><br>lebih dini.</h1>
+        <p>Jawab beberapa pertanyaan singkat seputar gejala, pola makan, dan faktor risikomu, dapatkan estimasi skor dan rekomendasi yang sesuai.</p>
+      </div>
+
+      <div class="gauge-hero">
+        <div class="drop-wrap">
+          <svg viewBox="0 0 150 190">
+            <defs>
+              <clipPath id="dropClip">
+                <path d="M75 8C75 8 18 82 18 122C18 154.6 43.4 178 75 178C106.6 178 132 154.6 132 122C132 82 75 8 75 8Z"/>
+              </clipPath>
+              <linearGradient id="fillGrad" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stop-color="#4B7A57"/>
+                <stop offset="55%" stop-color="#C6892E"/>
+                <stop offset="100%" stop-color="#8E2A24"/>
+              </linearGradient>
+            </defs>
+            <path d="M75 8C75 8 18 82 18 122C18 154.6 43.4 178 75 178C106.6 178 132 154.6 132 122C132 82 75 8 75 8Z" fill="#F1E4D3" stroke="#E7D9C6" stroke-width="2"/>
+            <g clip-path="url(#dropClip)">
+              <rect id="dropFillRect" x="0" y="60" width="150" height="130" fill="url(#fillGrad)">
+                <animate attributeName="y" values="185;70;185" dur="4.5s" repeatCount="indefinite"/>
+                <animate attributeName="height" values="5;120;5" dur="4.5s" repeatCount="indefinite"/>
+              </rect>
+            </g>
+            <path d="M75 8C75 8 18 82 18 122C18 154.6 43.4 178 75 178C106.6 178 132 154.6 132 122C132 82 75 8 75 8Z" fill="none" stroke="#8A3C21" stroke-width="2.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <button class="btn btn-primary" onclick="startSkrining()">Mulai Skrining →</button>
+        <button class="btn btn-ghost" onclick="goTo('edukasi')">Edukasi Anemia</button>
+      </div>
+
+      <div class="home-stats">
+        <div class="stat-card"><div class="num">4</div><div class="lbl">Komponen<br>skrining</div></div>
+        <div class="stat-card"><div class="num">28</div><div class="lbl">Total skor<br>maksimal</div></div>
+        <div class="stat-card"><div class="num">3</div><div class="lbl">Kategori<br>risiko</div></div>
+      </div>
+    </section>
+
+    <!-- DATA DIRI -->
+    <section class="screen" id="screen-datadiri">
+      <div class="card">
+        <div class="section-label">Skrining &middot; 1 dari 4</div>
+        <h2 class="q-title">Data Diri</h2>
+        <p class="q-sub">Membantu kami menyesuaikan pertanyaan dan membaca hasil skriningmu. Bagian ini tidak memengaruhi skor.</p>
+
+        <div class="field">
+          <label>Umur (tahun)</label>
+          <input type="number" id="inUmur" placeholder="Contoh: 20" min="1" max="120">
+        </div>
+
+        <div class="field">
+          <label>Jenis kelamin</label>
+          <div class="choice-grid grid2" id="grpJK"></div>
+        </div>
+
+        <div class="field" id="statusField">
+          <label>Status khusus</label>
+          <div class="choice-grid" id="grpStatus"></div>
+          <div id="statusLainnyaWrap" style="display:none; margin-top:10px;">
+            <input type="text" id="inStatusLainnya" placeholder="Tuliskan status kamu">
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn btn-ghost" onclick="goTo('beranda')">Kembali</button>
+          <button class="btn btn-primary" onclick="submitDataDiri()">Lanjut →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GEJALA -->
+    <section class="screen" id="screen-gejala">
+      <div class="card">
+        <div class="section-label">Skrining &middot; 2 dari 4</div>
+        <h2 class="q-title">Gejala Anemia</h2>
+        <p class="q-sub">Pilih semua gejala yang kamu rasakan belakangan ini.</p>
+        <div class="gejala-grid" id="grpGejala"></div>
+        <div class="score-badge"><span>Skor gejala</span><span id="gejalaScoreLabel">0 / 10</span></div>
+        <div class="nav-row">
+          <button class="btn btn-ghost" onclick="goTo('datadiri')">Kembali</button>
+          <button class="btn btn-primary" onclick="goTo('polamakan')">Lanjut →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- POLA MAKAN -->
+    <section class="screen" id="screen-polamakan">
+      <div class="card">
+        <div class="section-label">Skrining &middot; 3 dari 4</div>
+        <h2 class="q-title">Pola Makan</h2>
+        <p class="q-sub">Ceritakan kebiasaan makanmu sehari-hari.</p>
+
+        <div class="field">
+          <label>Seberapa sering kamu makan sumber zat besi (daging, ikan, telur, hati, kacang-kacangan)?</label>
+          <div class="choice-grid" data-group="zatBesi"></div>
+        </div>
+        <div class="field">
+          <label>Seberapa sering kamu makan buah/sayur sumber vitamin C?</label>
+          <div class="choice-grid" data-group="vitaminC"></div>
+        </div>
+        <div class="field">
+          <label>Seberapa sering kamu minum teh/kopi tepat setelah makan?</label>
+          <div class="choice-grid" data-group="tehKopi"></div>
+        </div>
+        <div class="field">
+          <label>Seberapa sering kamu melewatkan waktu makan?</label>
+          <div class="choice-grid" data-group="lewatMakan"></div>
+        </div>
+
+        <div class="score-badge"><span>Skor pola makan</span><span id="polaScoreLabel">0 / 8</span></div>
+        <div class="nav-row">
+          <button class="btn btn-ghost" onclick="goTo('gejala')">Kembali</button>
+          <button class="btn btn-primary" onclick="goTo('faktorrisiko')">Lanjut →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAKTOR RISIKO -->
+    <section class="screen" id="screen-faktorrisiko">
+      <div class="card">
+        <div class="section-label">Skrining &middot; 4 dari 4</div>
+        <h2 class="q-title">Faktor Risiko</h2>
+        <p class="q-sub">Beberapa riwayat kesehatan yang berkaitan dengan anemia.</p>
+
+        <div class="field">
+          <label>Apakah kamu pernah didiagnosis / punya riwayat anemia?</label>
+          <div class="choice-grid" data-group="riwayatAnemia"></div>
+        </div>
+        <div class="field">
+          <label>Seberapa rutin kamu mengonsumsi Tablet Tambah Darah (TTD)?</label>
+          <div class="choice-grid" data-group="konsumsiTTD"></div>
+        </div>
+        <div class="field">
+          <label>Bagaimana hasil pemeriksaan Hb (hemoglobin) terakhirmu?</label>
+          <div class="choice-grid" data-group="riwayatHb"></div>
+        </div>
+
+        <div class="subblock" id="menstruasiToggleWrap">
+          <div class="subblock-title">Khusus pengguna menstruasi</div>
+          <div class="field">
+            <label>Apakah kamu saat ini masih mengalami menstruasi?</label>
+            <div class="choice-grid grid2" data-group="masihMenstruasi"></div>
+          </div>
+        </div>
+
+        <div id="menstruasiDetail" style="display:none;">
+          <div class="field">
+            <label>Berapa lama durasi menstruasimu biasanya?</label>
+            <div class="choice-grid grid2" data-group="lamaMenstruasi"></div>
+          </div>
+          <div class="field">
+            <label>Seberapa banyak darah menstruasimu?</label>
+            <div class="choice-grid" data-group="banyakMenstruasi"></div>
+          </div>
+        </div>
+
+        <div class="score-badge"><span>Skor faktor risiko</span><span id="faktorScoreLabel">0 / 10</span></div>
+        <div class="nav-row">
+          <button class="btn btn-ghost" onclick="goTo('polamakan')">Kembali</button>
+          <button class="btn btn-primary" onclick="finishSkrining()">Lihat Hasil →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- HASIL -->
+    <section class="screen" id="screen-hasil">
+      <div class="result-head">
+        <div class="section-label" style="text-align:center;">Hasil Skrining</div>
+        <div class="arc-wrap"><svg id="arcSvg" viewBox="0 0 220 130" width="220" height="130"></svg></div>
+        <p class="score-num" id="scoreNum">0</p>
+        <p class="score-cap">dari total 28 poin</p>
+        <div id="resultBadgeWrap"></div>
+      </div>
+
+      <div class="breakdown">
+        <div class="bd"><div class="v" id="bdGejala">0</div><div class="k">Gejala</div></div>
+        <div class="bd"><div class="v" id="bdPola">0</div><div class="k">Pola Makan</div></div>
+        <div class="bd"><div class="v" id="bdFaktor">0</div><div class="k">Faktor Risiko</div></div>
+      </div>
+
+      <div class="result-section">
+        <h3>Faktor yang berkontribusi</h3>
+        <ul class="pill-list" id="contribList"></ul>
+      </div>
+
+      <div class="result-section">
+        <h3>Rekomendasi untukmu</h3>
+        <ul class="pill-list" id="recoList"></ul>
+      </div>
+
+      <div class="disclaimer">Catatan: hasil ini adalah estimasi mandiri berbasis gejala dan kebiasaan, bukan diagnosis medis. Untuk kepastian, periksakan kadar Hb ke fasilitas kesehatan terdekat.</div>
+
+      <div class="nav-row" style="margin-top:22px;">
+        <button class="btn btn-ghost" onclick="goTo('edukasi')">Baca Edukasi</button>
+        <button class="btn btn-primary" onclick="goTo('rekomendasi')">Rekomendasi Makanan →</button>
+      </div>
+      <div style="text-align:center; margin-top:14px;">
+        <button class="btn btn-small btn-ghost" style="max-width:220px;" onclick="restart()">Ulangi Skrining</button>
+      </div>
+    </section>
+
+    <!-- EDUKASI -->
+    <section class="screen" id="screen-edukasi">
+      <div class="section-label">Edukasi</div>
+      <h2 class="q-title" style="margin-bottom:2px;">Seputar Anemia</h2>
+      <p class="q-sub">Delapan hal dasar yang baik untuk kamu pahami.</p>
+      <div id="accWrap"></div>
+    </section>
+
+    <!-- REKOMENDASI MAKANAN -->
+    <section class="screen" id="screen-rekomendasi">
+      <div class="section-label">Rekomendasi</div>
+      <h2 class="q-title" style="margin-bottom:2px;">Rekomendasi Makanan</h2>
+      <p class="q-sub">Disusun berdasarkan hasil skriningmu untuk membantu penyerapan zat besi.</p>
+
+      <div class="food-chip" style="margin-bottom:16px; font-weight:600; background:var(--iron-tint); border-color:var(--iron);" id="foodPersonalNote"></div>
+
+      <h3 style="font-size:.9rem; margin:18px 0 10px;">🩸 Sumber zat besi</h3>
+      <div class="food-grid" id="foodIron"></div>
+
+      <h3 style="font-size:.9rem; margin:18px 0 10px;">🍊 Sumber vitamin C</h3>
+      <div class="food-grid" id="foodVitC"></div>
+
+      <div class="hint" style="margin:18px 0 6px;">💡 Padukan makanan sumber zat besi dengan sumber vitamin C dalam satu waktu makan — vitamin C membantu tubuh menyerap zat besi lebih optimal.</div>
+
+      <h3 style="font-size:.9rem; margin:24px 0 10px;">Contoh menu sehari</h3>
+      <div id="menuWrap"></div>
+    </section>
+
+  </main>
+
+  <div class="bottom-nav">
+    <div class="bottom-nav-in">
+      <button class="bn-btn" data-target="beranda" onclick="goTo('beranda')"><span class="ic">⌂</span><span class="lb">Beranda</span></button>
+      <button class="bn-btn" data-target="hasil" onclick="goToResultOrStart()"><span class="ic">📊</span><span class="lb">Hasil</span></button>
+      <button class="bn-btn" data-target="edukasi" onclick="goTo('edukasi')"><span class="ic">📚</span><span class="lb">Edukasi</span></button>
+      <button class="bn-btn" data-target="rekomendasi" onclick="goTo('rekomendasi')"><span class="ic">🍽️</span><span class="lb">Makanan</span></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================= STATE ================= */
+const state = {
+  dataDiri: { umur:null, jk:null, status:null },
+  gejala: {},           // key -> bool
+  polaMakan: { zatBesi:null, vitaminC:null, tehKopi:null, lewatMakan:null },
+  faktorRisiko: { riwayatAnemia:null, konsumsiTTD:null, riwayatHb:null, masihMenstruasi:null, lamaMenstruasi:null, banyakMenstruasi:null }
+};
+
+const GEJALA_OPTIONS = [
+  {key:'lelah', label:'Mudah Lelah', skor:1},
+  {key:'lemas', label:'Lemas', skor:1},
+  {key:'pusing', label:'Pusing', skor:1},
+  {key:'sakitkepala', label:'Sakit kepala', skor:1},
+  {key:'mengantuk', label:'Mengantuk', skor:1},
+  {key:'sulitkonsen', label:'Sulit berkonsentrasi', skor:1},
+  {key:'jantungdebar', label:'Jantung berdebar', skor:2},
+  {key:'pucat', label:'Tampak pucat', skor:2},
+];
+
+const SCALE_SJK = [ {v:'sering',l:'Sering',s:0}, {v:'kadang',l:'Kadang-kadang',s:1}, {v:'jarang',l:'Jarang',s:2} ];
+const SCALE_TJK = [ {v:'tidak',l:'Tidak pernah/jarang',s:0}, {v:'kadang',l:'Kadang-kadang',s:1}, {v:'sering',l:'Sering',s:2} ];
+const SCALE_RIWAYAT = [ {v:'tidak',l:'Tidak',s:0}, {v:'tidaktahu',l:'Tidak tahu',s:1}, {v:'pernah',l:'Pernah',s:2} ];
+const SCALE_TTD = [ {v:'rutin',l:'Rutin',s:0}, {v:'kadang',l:'Kadang-kadang',s:1}, {v:'tidakrutin',l:'Tidak rutin/tidak pernah',s:2} ];
+const SCALE_HB = [ {v:'normal',l:'Normal/terakhir normal',s:0}, {v:'tidaktahu',l:'Tidak tahu',s:1}, {v:'rendah',l:'Pernah rendah',s:2} ];
+const SCALE_LAMA = [ {v:'pendek',l:'≤ 7 hari',s:0}, {v:'panjang',l:'> 7 hari',s:2} ];
+const SCALE_BANYAK = [ {v:'normal',l:'Sedikit/normal',s:0}, {v:'cukup',l:'Cukup banyak',s:1}, {v:'sangat',l:'Sangat banyak',s:2} ];
+
+const POLA_GROUPS = [
+  {key:'zatBesi', scale:SCALE_SJK},
+  {key:'vitaminC', scale:SCALE_SJK},
+  {key:'tehKopi', scale:SCALE_TJK},
+  {key:'lewatMakan', scale:SCALE_TJK},
+];
+const FAKTOR_GROUPS = [
+  {key:'riwayatAnemia', scale:SCALE_RIWAYAT},
+  {key:'konsumsiTTD', scale:SCALE_TTD},
+  {key:'riwayatHb', scale:SCALE_HB},
+];
+
+const STEP_ORDER = ['beranda','datadiri','gejala','polamakan','faktorrisiko','hasil','edukasi','rekomendasi'];
+const STEP_LABELS = {beranda:'Beranda', datadiri:'1/4 · Data Diri', gejala:'2/4 · Gejala', polamakan:'3/4 · Pola Makan', faktorrisiko:'4/4 · Faktor Risiko', hasil:'Hasil Skrining', edukasi:'Edukasi', rekomendasi:'Rekomendasi Makanan'};
+const PROGRESS = {beranda:0, datadiri:25, gejala:50, polamakan:75, faktorrisiko:95, hasil:100, edukasi:0, rekomendasi:0};
+
+let hasResult = false;
+
+/* ================= NAV ================= */
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.getElementById('stepPill').textContent = STEP_LABELS[id];
+  document.getElementById('progressFill').style.width = (PROGRESS[id]||0)+'%';
+  document.querySelectorAll('.bn-btn').forEach(b=>b.classList.toggle('active', b.dataset.target===id));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function startSkrining(){ goTo('datadiri'); }
+function goToResultOrStart(){ hasResult ? goTo('hasil') : startSkrining(); }
+
+function restart(){
+  state.dataDiri = { umur:null, jk:null, status:null, statusLainnya:'' };
+  state.gejala = {};
+  state.polaMakan = { zatBesi:null, vitaminC:null, tehKopi:null, lewatMakan:null };
+  state.faktorRisiko = { riwayatAnemia:null, konsumsiTTD:null, riwayatHb:null, masihMenstruasi:null, lamaMenstruasi:null, banyakMenstruasi:null };
+  hasResult = false;
+  buildDataDiri(); buildGejala(); buildPolaMakan(); buildFaktorRisiko();
+  goTo('beranda');
+}
+
+/* ================= BUILDERS ================= */
+function choiceRow(container, groupObj, groupKey, options, onSelect, single=true){
+  container.innerHTML = '';
+  options.forEach(opt=>{
+    const el = document.createElement('label');
+    el.className = 'choice';
+    el.innerHTML = `<input type="${single?'radio':'checkbox'}" name="${groupKey}" value="${opt.v||opt.key}"> <span>${opt.l||opt.label}</span>`;
+    const input = el.querySelector('input');
+    input.addEventListener('change', ()=>{ onSelect(opt); refreshSelectedStyles(container); });
+    container.appendChild(el);
+  });
+}
+function refreshSelectedStyles(container){
+  container.querySelectorAll('.choice').forEach(c=>{
+    const inp = c.querySelector('input');
+    c.classList.toggle('selected', inp.checked);
+  });
+}
+
+function buildDataDiri(){
+  choiceRow(document.getElementById('grpJK'), null, 'jk',
+    [{v:'Laki-laki',l:'Laki-laki'},{v:'Perempuan',l:'Perempuan'}],
+    (opt)=>{ state.dataDiri.jk = opt.v; renderStatusOptions(); });
+
+  renderStatusOptions();
+}
+function renderStatusOptions(){
+  const wrap = document.getElementById('grpStatus');
+  const opts = state.dataDiri.jk === 'Laki-laki'
+    ? [{v:'Remaja laki-laki',l:'Remaja laki-laki'},{v:'Laki-laki dewasa',l:'Laki-laki dewasa'},{v:'Lansia',l:'Lansia'},{v:'Lainnya',l:'Lainnya'}]
+    : [{v:'Remaja putri',l:'Remaja putri'},{v:'Wanita usia subur',l:'Wanita usia subur'},{v:'Ibu hamil',l:'Ibu hamil'},{v:'Lainnya',l:'Lainnya'}];
+  choiceRow(wrap, null, 'status', opts, (opt)=>{
+    state.dataDiri.status = opt.v;
+    const lainnyaWrap = document.getElementById('statusLainnyaWrap');
+    if(opt.v === 'Lainnya'){
+      lainnyaWrap.style.display = 'block';
+    } else {
+      lainnyaWrap.style.display = 'none';
+      document.getElementById('inStatusLainnya').value = '';
+      state.dataDiri.statusLainnya = '';
+    }
+  });
+  document.getElementById('statusLainnyaWrap').style.display = 'none';
+  document.getElementById('inStatusLainnya').value = '';
+  state.dataDiri.statusLainnya = '';
+  document.getElementById('inStatusLainnya').oninput = (e)=>{ state.dataDiri.statusLainnya = e.target.value; };
+}
+
+function buildGejala(){
+  const wrap = document.getElementById('grpGejala');
+  wrap.innerHTML = '';
+  GEJALA_OPTIONS.forEach(g=>{
+    const el = document.createElement('label');
+    el.className = 'gejala-item';
+    el.innerHTML = `<input type="checkbox" value="${g.key}"> <span>${g.label}</span>`;
+    el.querySelector('input').addEventListener('change', (e)=>{
+      state.gejala[g.key] = e.target.checked;
+      el.classList.toggle('selected', e.target.checked);
+      updateGejalaScore();
+    });
+    wrap.appendChild(el);
+  });
+  updateGejalaScore();
+}
+function gejalaScore(){
+  return GEJALA_OPTIONS.reduce((sum,g)=> sum + (state.gejala[g.key] ? g.skor : 0), 0);
+}
+function updateGejalaScore(){
+  document.getElementById('gejalaScoreLabel').textContent = gejalaScore()+' / 10';
+}
+
+function buildPolaMakan(){
+  POLA_GROUPS.forEach(g=>{
+    const wrap = document.querySelector(`#screen-polamakan [data-group="${g.key}"]`);
+    choiceRow(wrap, null, g.key, g.scale, (opt)=>{ state.polaMakan[g.key] = opt.v; updatePolaScore(); });
+  });
+  updatePolaScore();
+}
+function polaScore(){
+  return POLA_GROUPS.reduce((sum,g)=>{
+    const val = state.polaMakan[g.key];
+    const found = g.scale.find(o=>o.v===val);
+    return sum + (found ? found.s : 0);
+  },0);
+}
+function updatePolaScore(){ document.getElementById('polaScoreLabel').textContent = polaScore()+' / 8'; }
+
+function buildFaktorRisiko(){
+  FAKTOR_GROUPS.forEach(g=>{
+    const wrap = document.querySelector(`#screen-faktorrisiko [data-group="${g.key}"]`);
+    choiceRow(wrap, null, g.key, g.scale, (opt)=>{ state.faktorRisiko[g.key] = opt.v; updateFaktorScore(); });
+  });
+  const wrapM = document.querySelector('[data-group="masihMenstruasi"]');
+  choiceRow(wrapM, null, 'masihMenstruasi', [{v:'ya',l:'Ya'},{v:'tidak',l:'Tidak'}], (opt)=>{
+    state.faktorRisiko.masihMenstruasi = opt.v;
+    document.getElementById('menstruasiDetail').style.display = (opt.v==='ya') ? 'block' : 'none';
+    if(opt.v!=='ya'){ state.faktorRisiko.lamaMenstruasi=null; state.faktorRisiko.banyakMenstruasi=null; }
+    updateFaktorScore();
+  });
+  const wrapLama = document.querySelector('[data-group="lamaMenstruasi"]');
+  choiceRow(wrapLama, null, 'lamaMenstruasi', SCALE_LAMA, (opt)=>{ state.faktorRisiko.lamaMenstruasi = opt.v; updateFaktorScore(); });
+  const wrapBanyak = document.querySelector('[data-group="banyakMenstruasi"]');
+  choiceRow(wrapBanyak, null, 'banyakMenstruasi', SCALE_BANYAK, (opt)=>{ state.faktorRisiko.banyakMenstruasi = opt.v; updateFaktorScore(); });
+  updateFaktorScore();
+}
+function menstruasiApplies(){
+  const jk = state.dataDiri.jk, status = state.dataDiri.status;
+  return jk === 'Perempuan' && status !== 'Ibu hamil';
+}
+function faktorScore(){
+  let sum = FAKTOR_GROUPS.reduce((s,g)=>{
+    const val = state.faktorRisiko[g.key];
+    const found = g.scale.find(o=>o.v===val);
+    return s + (found ? found.s : 0);
+  },0);
+  if(menstruasiApplies() && state.faktorRisiko.masihMenstruasi === 'ya'){
+    const lama = SCALE_LAMA.find(o=>o.v===state.faktorRisiko.lamaMenstruasi);
+    const banyak = SCALE_BANYAK.find(o=>o.v===state.faktorRisiko.banyakMenstruasi);
+    sum += (lama?lama.s:0) + (banyak?banyak.s:0);
+  }
+  return sum;
+}
+function updateFaktorScore(){
+  const max = menstruasiApplies() ? 10 : 6;
+  document.getElementById('faktorScoreLabel').textContent = faktorScore()+' / '+max;
+  document.getElementById('menstruasiToggleWrap').style.display = menstruasiApplies() ? 'block' : 'none';
+  if(!menstruasiApplies()) document.getElementById('menstruasiDetail').style.display = 'none';
+}
+
+/* ================= SUBMIT / VALIDATION ================= */
+function submitDataDiri(){
+  const umurVal = document.getElementById('inUmur').value;
+  if(!umurVal || !state.dataDiri.jk || !state.dataDiri.status){
+    alert('Mohon lengkapi umur, jenis kelamin, dan status terlebih dahulu.');
+    return;
+  }
+  if(state.dataDiri.status === 'Lainnya' && !state.dataDiri.statusLainnya.trim()){
+    alert('Mohon tuliskan status kamu pada kolom yang tersedia.');
+    return;
+  }
+  state.dataDiri.umur = umurVal;
+  goTo('gejala');
+}
+
+function finishSkrining(){
+  const fr = state.faktorRisiko;
+  if(!fr.riwayatAnemia || !fr.konsumsiTTD || !fr.riwayatHb){
+    alert('Mohon lengkapi seluruh pertanyaan faktor risiko.');
+    return;
+  }
+  if(menstruasiApplies() && !fr.masihMenstruasi){
+    alert('Mohon jawab pertanyaan tentang menstruasi.');
+    return;
+  }
+  if(menstruasiApplies() && fr.masihMenstruasi==='ya' && (!fr.lamaMenstruasi || !fr.banyakMenstruasi)){
+    alert('Mohon lengkapi pertanyaan seputar menstruasi.');
+    return;
+  }
+  computeAndShowResult();
+}
+
+/* ================= RESULT ================= */
+function computeAndShowResult(){
+  const sg = gejalaScore(), sp = polaScore(), sf = faktorScore();
+  const total = sg + sp + sf;
+
+  document.getElementById('bdGejala').textContent = sg;
+  document.getElementById('bdPola').textContent = sp;
+  document.getElementById('bdFaktor').textContent = sf;
+  document.getElementById('scoreNum').textContent = total;
+
+  let kategori, color, bg, emoji;
+  if(total <= 7){ kategori='Risiko Rendah'; color='var(--vitality)'; bg='var(--vitality-tint)'; emoji='🟢'; }
+  else if(total <= 14){ kategori='Risiko Sedang'; color='var(--caution)'; bg='var(--caution-tint)'; emoji='🟡'; }
+  else { kategori='Risiko Tinggi'; color='var(--alert)'; bg='var(--alert-tint)'; emoji='🔴'; }
+
+  document.getElementById('resultBadgeWrap').innerHTML =
+    `<div class="result-badge" style="color:${color}; background:${bg};">${emoji} ${kategori}</div>`;
+  document.getElementById('scoreNum').style.color = color;
+
+  drawArc(total, color);
+
+  // Faktor yang berkontribusi
+  const contrib = [];
+  if(sg >= 5) contrib.push('Beberapa gejala anemia ditemukan');
+  else if(sg > 0) contrib.push('Terdapat sedikit gejala anemia');
+  if(state.polaMakan.zatBesi==='jarang' || state.polaMakan.zatBesi==='kadang') contrib.push('Konsumsi makanan sumber zat besi masih rendah');
+  if(state.polaMakan.vitaminC==='jarang') contrib.push('Konsumsi buah/sayur sumber vitamin C masih kurang');
+  if(state.polaMakan.tehKopi==='sering') contrib.push('Kebiasaan minum teh/kopi setelah makan dapat menghambat penyerapan zat besi');
+  if(state.polaMakan.lewatMakan==='sering') contrib.push('Sering melewatkan waktu makan');
+  if(state.faktorRisiko.riwayatAnemia==='pernah') contrib.push('Memiliki riwayat anemia sebelumnya');
+  if(state.faktorRisiko.konsumsiTTD!=='rutin') contrib.push('Konsumsi TTD belum rutin');
+  if(state.faktorRisiko.riwayatHb==='rendah') contrib.push('Riwayat pemeriksaan Hb pernah rendah');
+  if(menstruasiApplies() && state.faktorRisiko.masihMenstruasi==='ya'){
+    if(state.faktorRisiko.lamaMenstruasi==='panjang') contrib.push('Durasi menstruasi cenderung panjang');
+    if(state.faktorRisiko.banyakMenstruasi==='cukup' || state.faktorRisiko.banyakMenstruasi==='sangat') contrib.push('Menstruasi cukup banyak');
+  }
+  if(contrib.length===0) contrib.push('Tidak ditemukan faktor risiko yang signifikan');
+  document.getElementById('contribList').innerHTML = contrib.map(c=>`<li>${c}</li>`).join('');
+
+  // Rekomendasi
+  const reco = [];
+  if(state.polaMakan.zatBesi!=='sering') reco.push('Tingkatkan konsumsi makanan sumber zat besi (daging, ikan, telur, hati, kacang-kacangan)');
+  reco.push('Kombinasikan makanan sumber zat besi dengan sumber vitamin C agar penyerapannya lebih optimal');
+  if(state.faktorRisiko.konsumsiTTD!=='rutin') reco.push('Perhatikan konsumsi Tablet Tambah Darah (TTD) sesuai anjuran');
+  if(state.polaMakan.tehKopi==='sering') reco.push('Hindari minum teh/kopi tepat setelah makan');
+  if(total>=8) reco.push('Pertimbangkan pemeriksaan Hb di fasilitas kesehatan jika memiliki keluhan atau faktor risiko');
+  document.getElementById('recoList').innerHTML = reco.map(r=>`<li>${r}</li>`).join('');
+
+  buildRekomendasiScreen(kategori);
+  hasResult = true;
+  goTo('hasil');
+}
+
+function drawArc(score, color){
+  const max = 22; // visual cap slightly above 15+ zone
+  const clamped = Math.min(score, max);
+  const svg = document.getElementById('arcSvg');
+  const cx=110, cy=115, r=95;
+  function pt(angleDeg){
+    const a = (Math.PI/180)*angleDeg;
+    return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+  }
+  // arc from 180deg (left) to 0deg (right) over top
+  function describeArc(startDeg,endDeg){
+    const [x1,y1]=pt(startDeg), [x2,y2]=pt(endDeg);
+    const largeArc = (startDeg-endDeg) > 180 ? 1 : 0;
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`;
+  }
+  const zoneGreenEnd = 180 - (7/max)*180;
+  const zoneAmberEnd = 180 - (14/max)*180;
+  const zoneEnd = 0;
+  const needleAngle = 180 - (clamped/max)*180;
+
+  svg.innerHTML = `
+    <path d="${describeArc(180, zoneGreenEnd)}" stroke="#4B7A57" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <path d="${describeArc(zoneGreenEnd, zoneAmberEnd)}" stroke="#C6892E" stroke-width="16" fill="none"/>
+    <path d="${describeArc(zoneAmberEnd, zoneEnd)}" stroke="#8E2A24" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="7" fill="${color}"/>
+    <line x1="${cx}" y1="${cy}" x2="${pt(needleAngle)[0]}" y2="${pt(needleAngle)[1]}" stroke="${color}" stroke-width="4" stroke-linecap="round"/>
+  `;
+}
+
+/* ================= EDUKASI ================= */
+const EDU_TOPICS = [
+  {t:'Apa itu anemia?', c:'Anemia adalah kondisi ketika kadar hemoglobin (Hb) dalam darah lebih rendah dari normal, sehingga darah kurang mampu membawa oksigen ke seluruh tubuh. Tubuh yang kekurangan oksigen membuat kamu mudah lelah dan lesu.'},
+  {t:'Tanda dan gejala anemia', c:'Gejala umum meliputi mudah lelah, lemas, pusing, sakit kepala, mengantuk berlebihan, sulit berkonsentrasi, jantung berdebar, dan kulit atau wajah yang tampak pucat. Gejala bisa ringan dan tidak disadari pada tahap awal.'},
+  {t:'Penyebab anemia', c:'Penyebab paling umum adalah kekurangan zat besi akibat asupan yang tidak cukup, penyerapan yang terganggu, atau kehilangan darah (misalnya menstruasi yang banyak). Penyebab lain termasuk kekurangan vitamin B12/asam folat dan penyakit kronis tertentu.'},
+  {t:'Zat besi dan sumber makanannya', c:'Zat besi adalah komponen utama pembentuk hemoglobin. Sumber terbaik berasal dari makanan hewani seperti daging merah, hati, ikan, dan telur, serta sumber nabati seperti kacang-kacangan dan sayuran hijau.'},
+  {t:'Vitamin C dan penyerapan zat besi', c:'Vitamin C membantu mengubah zat besi ke bentuk yang lebih mudah diserap usus. Mengonsumsi buah atau sayur kaya vitamin C bersamaan dengan makanan sumber zat besi dapat meningkatkan penyerapannya secara signifikan.'},
+  {t:'Tablet Tambah Darah (TTD)', c:'TTD adalah suplemen zat besi dan asam folat yang dianjurkan terutama bagi remaja putri, wanita usia subur, dan ibu hamil untuk mencegah dan mengatasi anemia. Konsumsi rutin sesuai anjuran tenaga kesehatan penting untuk hasil yang optimal.'},
+  {t:'Pola makan seimbang', c:'Selain zat besi dan vitamin C, tubuh membutuhkan pola makan yang bervariasi dengan porsi teratur. Hindari melewatkan waktu makan dan batasi konsumsi teh/kopi tepat setelah makan karena dapat menghambat penyerapan zat besi.'},
+  {t:'Mitos dan fakta anemia', c:'Mitos: anemia hanya dialami perempuan. Fakta: laki-laki juga bisa mengalami anemia. Mitos: anemia selalu terlihat jelas dari luar. Fakta: banyak kasus anemia ringan tidak menimbulkan gejala yang kentara sehingga perlu diperiksa secara berkala.'},
+];
+function buildEdukasi(){
+  const wrap = document.getElementById('accWrap');
+  wrap.innerHTML = EDU_TOPICS.map((e,i)=>`
+    <div class="acc-item" id="acc-${i}">
+      <div class="acc-head" onclick="toggleAcc(${i})"><span><span class="num">0${i+1}</span>${e.t}</span><span class="acc-icon">+</span></div>
+      <div class="acc-body"><div class="acc-body-in">${e.c}</div></div>
+    </div>`).join('');
+}
+function toggleAcc(i){
+  const item = document.getElementById('acc-'+i);
+  const body = item.querySelector('.acc-body');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.acc-item').forEach(it=>{ it.classList.remove('open'); it.querySelector('.acc-body').style.maxHeight = null; });
+  if(!isOpen){ item.classList.add('open'); body.style.maxHeight = body.scrollHeight+'px'; }
+}
+
+/* ================= REKOMENDASI MAKANAN ================= */
+const FOOD_IRON = ['Daging merah','Hati ayam/sapi','Ikan','Telur','Kacang-kacangan','Bayam & sayur hijau tua'];
+const FOOD_VITC = ['Jeruk','Jambu biji','Tomat','Paprika','Stroberi','Pepaya'];
+const MENU = [
+  {t:'Sarapan', items:['Nasi + telur dadar + tumis bayam','Segelas jus jeruk']},
+  {t:'Makan siang', items:['Nasi + ayam/ikan panggang + tumis kacang panjang','Sambal tomat segar']},
+  {t:'Makan malam', items:['Nasi + hati ayam bumbu + sayur sop','Irisan tomat/paprika']},
+  {t:'Selingan', items:['Kacang rebus atau edamame','Buah jambu biji atau stroberi']},
+];
+function buildRekomendasiScreen(kategori){
+  document.getElementById('foodPersonalNote').textContent =
+    kategori ? `Disusun berdasarkan hasil skriningmu: ${kategori}.` : 'Lengkapi skrining untuk rekomendasi yang lebih personal.';
+  document.getElementById('foodIron').innerHTML = FOOD_IRON.map(f=>`<div class="food-chip">🥩 ${f}</div>`).join('');
+  document.getElementById('foodVitC').innerHTML = FOOD_VITC.map(f=>`<div class="food-chip">🍊 ${f}</div>`).join('');
+  document.getElementById('menuWrap').innerHTML = MENU.map(m=>`
+    <div class="menu-card"><div class="m-title">${m.t}</div><ul>${m.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ================= INIT ================= */
+buildDataDiri();
+buildGejala();
+buildPolaMakan();
+buildFaktorRisiko();
+buildEdukasi();
+buildRekomendasiScreen(null);
+goTo('beranda');
+</script>
+</body>
+</html>
